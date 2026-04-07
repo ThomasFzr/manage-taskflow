@@ -4,11 +4,19 @@ import { useTaskStore } from '@/stores/taskStore';
 import { Plus, Trash2 } from 'lucide-react-native';
 
 export default function TasksScreen() {
-  const { tasks, isLoading, error, fetchTasks, deleteTask, updateTask } = useTaskStore();
+  const { tasks, isLoading, error, fetchTasks, deleteTask, updateTask, createTask } = useTaskStore();
 
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
+
+  const handleAddTask = async () => {
+    await createTask({
+      title: 'New Task',
+      description: 'Task description',
+      completed: false,
+    });
+  };
 
   if (isLoading) {
     return (
@@ -53,7 +61,7 @@ export default function TasksScreen() {
           </View>
         )}
       />
-      <Pressable style={styles.fab} testID='add-button'>
+      <Pressable style={styles.fab} testID='add-button' onPress={handleAddTask}>
         <Plus size={24} color="#FFFFFF" />
       </Pressable>
     </View>
