@@ -1,14 +1,20 @@
 import { create } from 'zustand';
-import { Task, TasksAPI } from '@/lib/api';
+import {
+  type Task,
+  TasksAPI,
+  CreateTaskPayload,
+  UpdateTaskPayload,
+} from '@/lib/api';
 
 interface TaskStore {
   tasks: Task[];
   isLoading: boolean;
   error: string | null;
   fetchTasks: () => Promise<void>;
-  createTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  updateTask: (id: string, task: Partial<Task>) => Promise<void>;
+  createTask: (task: CreateTaskPayload) => Promise<void>;
+  updateTask: (id: string, task: UpdateTaskPayload) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
+  bulkDeleteTasks: (ids: string[]) => Promise<void>;
 }
 
 export const useTaskStore = create<TaskStore>((set, get) => ({
@@ -20,45 +26,53 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     try {
       const response = await TasksAPI.getTasks();
       set({ tasks: response.data });
-    } catch  {
+    } catch {
       set({ error: 'Failed to fetch tasks' });
     } finally {
       set({ isLoading: false });
     }
   },
   createTask: async (task) => {
-    set({ isLoading: true, error: null });
+    set({ error: null });
     try {
       const response = await TasksAPI.createTask(task);
-      set({ tasks: [...get().tasks, response.data] });
+      set({ tasks: [response.data, ...get().tasks] });
     } catch {
       set({ error: 'Failed to create task' });
-    } finally {
-      set({ isLoading: false });
+      throw new Error('Failed to create task');
     }
   },
   updateTask: async (id, task) => {
-    set({ isLoading: true, error: null });
+    set({ error: null });
     try {
       const response = await TasksAPI.updateTask(id, task);
       set({
         tasks: get().tasks.map((t) => (t.id === id ? response.data : t)),
       });
-    } catch  {
+    } catch {
       set({ error: 'Failed to update task' });
-    } finally {
-      set({ isLoading: false });
+      throw new Error('Failed to update task');
     }
   },
   deleteTask: async (id) => {
-    set({ isLoading: true, error: null });
+    set({ error: null });
     try {
       await TasksAPI.deleteTask(id);
       set({ tasks: get().tasks.filter((t) => t.id !== id) });
-    } catch  {
+    } catch {
       set({ error: 'Failed to delete task' });
-    } finally {
-      set({ isLoading: false });
+      throw new Error('Failed to delete task');
+    }
+  },
+  bulkDeleteTasks: async (ids) => {
+    set({ error: null });
+    try {
+      await TasksAPI.bulkDeleteTasks(ids);
+      const idSet = new Set(ids);
+      set({ tasks: get().tasks.filter((t) => !idSet.has(t.id)) });
+    } catch {
+      set({ error: 'Failed to delete tasks' });
+      throw new Error('Failed to delete tasks');
     }
   },
 }));

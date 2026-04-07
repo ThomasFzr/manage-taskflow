@@ -18,7 +18,7 @@ export default {
       output: "single",
       favicon: "./assets/images/favicon.png",
     },
-    plugins: ["expo-router"],
+    plugins: ["expo-router", "@react-native-community/datetimepicker"],
     experiments: {
       typedRoutes: true,
     }

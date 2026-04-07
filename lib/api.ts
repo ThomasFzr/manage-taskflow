@@ -10,19 +10,32 @@ const api = axios.create({
 export interface Task {
   id: string;
   title: string;
-  description: string;
   completed: boolean;
+  dueDate: string | null;
+  color: string | null;
   createdAt: string;
-  updatedAt: string;
 }
+
+export type CreateTaskPayload = {
+  title: string;
+  dueDate?: string | null;
+  color?: string | null;
+};
+
+export type UpdateTaskPayload = Partial<
+  Pick<Task, 'title' | 'completed' | 'dueDate' | 'color'>
+>;
 
 export const TasksAPI = {
   getTasks: () => api.get<Task[]>('/tasks'),
-  createTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => 
-    api.post<Task>('/tasks', task),
-  updateTask: (id: string, task: Partial<Task>) => 
+  createTask: (task: CreateTaskPayload) => api.post<Task>('/tasks', task),
+  updateTask: (id: string, task: UpdateTaskPayload) =>
     api.patch<Task>(`/tasks/${id}`, task),
   deleteTask: (id: string) => api.delete(`/tasks/${id}`),
+  bulkDeleteTasks: (ids: string[]) =>
+    api.post<{ deleted: number; ids: string[] }>('/tasks/bulk-delete', {
+      ids,
+    }),
 };
 
 export default api;
