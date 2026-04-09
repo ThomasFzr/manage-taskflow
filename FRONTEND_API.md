@@ -1,4 +1,4 @@
-# FONTEND API - THOMAS
+# FONTEND API
 
 # API Tasks — guide d’intégration front-end
 
