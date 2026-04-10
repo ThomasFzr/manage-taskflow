@@ -6,7 +6,10 @@ process.env.EXPO_PUBLIC_API_URL = 'https://api.test.com';
 jest.mock('@react-native-community/datetimepicker', () => {
   const React = require('react');
   const { View } = require('react-native');
-  return function MockDateTimePicker() {
-    return React.createElement(View, { testID: 'mock-datetime-picker' });
+  return function MockDateTimePicker(props) {
+    return React.createElement(View, {
+      testID: 'mock-datetime-picker',
+      ...props,
+    });
   };
 });

@@ -407,6 +407,7 @@ export default function TasksScreen() {
                 <View style={styles.taskActions}>
                   <Pressable
                     onPress={() => updateTask(item.id, { completed: !item.completed })}
+                    testID={`complete-button-${item.id}`}
                     style={styles.iconBtn}>
                     {item.completed ? (
                       <CheckCircle2 size={24} color="#22c55e" />
